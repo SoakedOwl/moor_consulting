@@ -1,28 +1,25 @@
 import { Menu, X, Briefcase, ChevronDown } from 'lucide-react';
-import { useState } from 'react';
-import { transitionStore } from '../transitionStore';
+import { useState, memo } from 'react';
+import { Link } from 'react-router-dom';
 import './Navbar.css';
 
-const NavLink = ({ to, children, className, onClick }) => {
-  const handleClick = (e) => {
-    e.preventDefault();
-    if (onClick) onClick();
-    if (transitionStore.transitionTo) {
-      transitionStore.transitionTo(to);
-    } else {
-      window.location.href = to;
-    }
-  };
-  return <a href={to} onClick={handleClick} className={className}>{children}</a>;
-};
-
-const Dropdown = ({ title, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
+const NavLink = memo(({ to, children, className, onClick }) => {
   return (
-    <div 
-      className="nav-dropdown" 
-      onMouseEnter={() => setIsOpen(true)} 
+    <Link to={to} onClick={onClick} className={className}>
+      {children}
+    </Link>
+  );
+});
+
+NavLink.displayName = 'NavLink';
+
+const Dropdown = memo(({ title, children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div
+      className="nav-dropdown"
+      onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
       onClick={() => setIsOpen(!isOpen)}
     >
@@ -34,7 +31,9 @@ const Dropdown = ({ title, children }) => {
       </div>
     </div>
   );
-};
+});
+
+Dropdown.displayName = 'Dropdown';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -47,12 +46,12 @@ const Navbar = () => {
           <Briefcase className="logo-icon" />
           <span>MoorConsultations</span>
         </NavLink>
-        <button className="menu-toggle" onClick={() => setIsOpen(!isOpen)}>
+        <button className="menu-toggle" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
           {isOpen ? <X /> : <Menu />}
         </button>
         <nav className={`navbar-links ${isOpen ? 'open' : ''}`}>
           <NavLink to="/" onClick={close}>Home</NavLink>
-          
+
           <Dropdown title="Solutions">
             <NavLink to="/services" onClick={close}>Advisory & Management</NavLink>
             <NavLink to="/careers" onClick={close}>Recruitment & Staffing</NavLink>
@@ -74,4 +73,4 @@ const Navbar = () => {
   );
 };
 
-export default Navbar;
+export default memo(Navbar);
